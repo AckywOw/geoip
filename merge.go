@@ -40,8 +40,14 @@ var mergeCmd = &cobra.Command{
 	},
 }
 
+// Constructors used by merge command, overridable in tests.
+var (
+	newStdinForMerge  = special.NewStdin
+	newStdoutForMerge = special.NewStdout
+)
+
 func getInputForMerge() lib.InputConverter {
-	input, err := special.NewStdin(
+	input, err := newStdinForMerge(
 		lib.ActionAdd,
 		special.WithStdinName("temp"),
 	)
@@ -59,7 +65,7 @@ func getOutputForMerge(otype string) lib.OutputConverter {
 		onlyIPType = lib.IPType(otype)
 	}
 
-	output, err := special.NewStdout(
+	output, err := newStdoutForMerge(
 		lib.ActionOutput,
 		special.WithStdoutOnlyIPType(onlyIPType),
 	)

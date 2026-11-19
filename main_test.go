@@ -32,6 +32,18 @@ var fatalFuncs = map[string]func(){
 	"lookupInputUnsupportedFormat": func() { getInputForLookup("unknown", "", "", "") },
 	"lookupInputInvalidArgs":       func() { getInputForLookup(plaintext.TypeTextIn, "", "", "") },
 	"lookupOutputEmptySearch":      func() { getOutputForLookup("") },
+	"mergeInputError": func() {
+		newStdinForMerge = func(lib.Action, ...lib.InputOption) (lib.InputConverter, error) {
+			return nil, errors.New("stdin constructor failed")
+		}
+		getInputForMerge()
+	},
+	"mergeOutputError": func() {
+		newStdoutForMerge = func(lib.Action, ...lib.OutputOption) (lib.OutputConverter, error) {
+			return nil, errors.New("stdout constructor failed")
+		}
+		getOutputForMerge("ipv4")
+	},
 }
 
 // TestMain runs the real main() in a subprocess when subprocessEnv is set,
@@ -242,6 +254,8 @@ func TestHelperFatal(t *testing.T) {
 		{"lookupInputUnsupportedFormat", "unsupported input format"},
 		{"lookupInputInvalidArgs", "missing inputDir or name"},
 		{"lookupOutputEmptySearch", "search must be specified"},
+		{"mergeInputError", "stdin constructor failed"},
+		{"mergeOutputError", "stdout constructor failed"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
